@@ -65,14 +65,13 @@ echo "\n\n${WHITE}MERCURAL${NC}"
 
 # Project paths
 
-IZZI_INSPIRE_PATH=~/workspace/ios/product-iris-mobile
-IZZI_APP_PATH=$IZZI_INSPIRE_PATH
-IZZI_COMPONENTS_PATH=$IZZI_INSPIRE_PATH/Movistar-sources/Mirada/libraries/library-iris-ios-components
-IZZI_INTERFACE_PATH=$IZZI_INSPIRE_PATH/Movistar-sources/Mirada/libraries/library-iris-ios-components/lib/library-iris-ios-interface
+IZZI_IRIS_PATH=~/workspace/ios/product-iris-mobile
+IZZI_APP_PATH=$IZZI_IRIS_PATH
+IZZI_INTERFACE_PATH=$IZZI_IRIS_PATH/Movistar-sources/Mirada/libraries/library-iris-ios-components/lib/library-iris-ios-interface
 
-KIDS_INSPIRE_PATH=~/workspace/ios/Kids
-KIDS_APP_PATH=$KIDS_INSPIRE_PATH
-KIDS_INTERFACE_PATH=$KIDS_INSPIRE_PATH/Kids/KidsLibrary
+KIDS_IRIS_PATH=~/workspace/ios/Kids
+KIDS_APP_PATH=$KIDS_IRIS_PATH
+KIDS_INTERFACE_PATH=$KIDS_IRIS_PATH/Kids/KidsLibrary
 
 for day in $(seq 0 "$DAYS"); do
 
@@ -86,7 +85,6 @@ for day in $(seq 0 "$DAYS"); do
     echo "\n\n${WHITE}Izzi${NC}"
 
     RepositoryLog $IZZI_APP_PATH APP
-    RepositoryLog $IZZI_COMPONENTS_PATH COMPONENTS
     RepositoryLog $IZZI_INTERFACE_PATH INTERFACE
 
     echo "$OUTPUT"
@@ -102,8 +100,5 @@ for day in $(seq 0 "$DAYS"); do
     echo "$OUTPUT"
     OUTPUT=""
 
-    if [[ -z $1 ]]; then
-        read -p "Siguiente..." next
-    fi
 done
 
