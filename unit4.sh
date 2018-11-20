@@ -57,7 +57,6 @@ echo "\n\n${WHITE}CALENDAR${NC}"
 startDate=$(date -j -v-"$DAYS"d +"%Y-%m-%d")
 endDate=$(date +"%Y-%m-%d")
 gcalcli search 'yeniel' $startDate $endDate
-echo "Label: 10111"
 
 # MERCURIAL
 
