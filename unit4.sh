@@ -66,7 +66,7 @@ echo "\n\n${WHITE}MERCURAL${NC}"
 
 IZZI_IRIS_PATH=~/workspace/ios/product-iris-mobile
 IZZI_APP_PATH=$IZZI_IRIS_PATH
-IZZI_INTERFACE_PATH=$IZZI_IRIS_PATH/Movistar-sources/Mirada/libraries/library-iris-ios-components/lib/library-iris-ios-interface
+IZZI_INTERFACE_PATH=$IZZI_IRIS_PATH/Iris/libraries/library-iris-ios-interface
 
 KIDS_IRIS_PATH=~/workspace/ios/Kids
 KIDS_APP_PATH=$KIDS_IRIS_PATH
