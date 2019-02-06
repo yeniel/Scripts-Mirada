@@ -8,6 +8,6 @@ lineToAnnotate="$2p"
 
 echo ""
 
-hg annotate -cul $fileToAnnotate | sed -n $lineToAnnotate
+hg annotate -ncul $fileToAnnotate | sed -n $lineToAnnotate
 
 echo ""

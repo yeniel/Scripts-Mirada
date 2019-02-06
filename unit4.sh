@@ -12,7 +12,7 @@ if [[ -z $1 ]]; then
     DAYS=$(( $(date '+%u') - 1 ))
 fi
 
-LOG_TEMPLATE='Description:\t'$DESCRIPTION_COLOR'{desc}'$NC
+LOG_TEMPLATE='Commit Description:\t'$DESCRIPTION_COLOR'{desc}'$NC
 OUTPUT=""
 
 RepositoryLog () {
@@ -28,24 +28,45 @@ RepositoryLog () {
         OUTPUT="$OUTPUT\n$log\n\n"
 
         jiraDescription=$(hg log -r "author('$USER') and date('$startDate to $endDate')" --template "{desc}\n")
+        
+        SAVEIFS=$IFS
+        IFS=$'\n'
+        
         jiraIds=($(echo "$jiraDescription" | cut -d ' ' -f 1))
+        uniqJiraIds=($(echo "${jiraIds[@]}" | tr ' ' '\n' | sort -u))
 
-        for jiraId in "${jiraIds[@]}";
+        IFS=$SAVEIFS
+        
+        for jiraId in "${uniqJiraIds[@]}";
         do
-            label=$(curl -s -u $USER:$PASSWORD -X GET -H 'Content-Type: application/json' https://mirada.atlassian.net/rest/api/latest/issue/$jiraId | jq -r ".fields.labels[0]")
-            workorder=$(curl -s -u $USER:$PASSWORD -X GET -H 'Content-Type: application/json' https://mirada.atlassian.net/rest/api/latest/issue/$jiraId | jq -r ".fields.customfield_11700")
-
-            if [ $label != "null" ] || [ $workorder != "null" ] ; then
-                OUTPUT="$OUTPUT\nJira Id:\t"$DESCRIPTION_COLOR"$jiraId"$NC
+            jiraJson=$(curl -s -u $USER:$PASSWORD -X GET -H 'Content-Type: application/json' https://mirada.atlassian.net/rest/api/latest/issue/$jiraId)
+            label=$(jq -r ".fields.labels[0]" <<< "$jiraJson")
+            workorder=$(jq -r ".fields.customfield_11700" <<< "$jiraJson")
+            jiraType=$(jq -r ".fields.issuetype.name" <<< "$jiraJson")
+            
+            if [ "$jiraType" == "null" ]; then
+                continue
             fi
 
+            
+            if [ "$jiraType" == "Bug" ] || [ "$jiraType" == "Issue" ]; then
+                OUTPUT="$OUTPUT\nUnit4 Description:\t"$DESCRIPTION_COLOR"Bugfixing - iOS - $jiraId"$NC
+            elif [ "$jiraType" == "Feature" ] || [ "$jiraType" == "New Feature" ]; then
+                OUTPUT="$OUTPUT\nUnit4 Description:\t"$DESCRIPTION_COLOR"Task - iOS - $jiraId"$NC
+            else
+                OUTPUT="$OUTPUT\nUnit4 Description:\t"$DESCRIPTION_COLOR"$jiraType - iOS - $jiraId"$NC
+            fi
+            
             if [ $label != "null" ] ; then
-                OUTPUT="$OUTPUT\nLabel:\t\t"$DESCRIPTION_COLOR"$label"$NC
+                OUTPUT="$OUTPUT\nLabel:\t\t\t"$DESCRIPTION_COLOR"$label"$NC
             fi
 
-            if [ $workorder != "null" ] ; then
-                OUTPUT="$OUTPUT\nWorkorder\t"$DESCRIPTION_COLOR"$workorder\n"$NC
+            if [ $workorder != "null" ] && [ $workorder != "tbc" ]; then
+                OUTPUT="$OUTPUT\nWorkorder:\t\t"$DESCRIPTION_COLOR"$workorder\n"$NC
             fi
+
+            OUTPUT="$OUTPUT\n"
+
         done
     fi
 }
@@ -101,3 +122,11 @@ for day in $(seq 0 "$DAYS"); do
 
 done
 
+# JIRA
+
+echo "\n\n${WHITE}JIRA${NC}"
+
+startDate=$(date -j -v-"$DAYS"d +"%Y/%m/%d")
+endDate=$(date +"%Y/%m/%d")
+
+/Users/yeniel.landestoy/Google\ Drive/Scripts/TimesheetJiraQueryMacOS_v1_1 yeniel.landestoy@mirada.tv uzgqyhisedO8L1mLeH1F7493 -q "status changed by currentUser() after \"$startDate\" before \"$endDate\" ORDER BY updatedDate ASC

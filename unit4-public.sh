@@ -12,7 +12,7 @@ if [[ -z $1 ]]; then
     DAYS=$(( $(date '+%u') - 1 ))
 fi
 
-LOG_TEMPLATE='Description:\t'$DESCRIPTION_COLOR'{desc}'$NC
+LOG_TEMPLATE='Commit Description:\t'$DESCRIPTION_COLOR'{desc}'$NC
 OUTPUT=""
 
 RepositoryLog () {
@@ -28,24 +28,45 @@ RepositoryLog () {
         OUTPUT="$OUTPUT\n$log\n\n"
 
         jiraDescription=$(hg log -r "author('$USER') and date('$startDate to $endDate')" --template "{desc}\n")
+        
+        SAVEIFS=$IFS
+        IFS=$'\n'
+        
         jiraIds=($(echo "$jiraDescription" | cut -d ' ' -f 1))
+        uniqJiraIds=($(echo "${jiraIds[@]}" | tr ' ' '\n' | sort -u))
 
-        for jiraId in "${jiraIds[@]}";
+        IFS=$SAVEIFS
+        
+        for jiraId in "${uniqJiraIds[@]}";
         do
-            label=$(curl -s -u $USER:$PASSWORD -X GET -H 'Content-Type: application/json' https://mirada.atlassian.net/rest/api/latest/issue/$jiraId | jq -r ".fields.labels[0]")
-            workorder=$(curl -s -u $USER:$PASSWORD -X GET -H 'Content-Type: application/json' https://mirada.atlassian.net/rest/api/latest/issue/$jiraId | jq -r ".fields.customfield_11700")
-
-            if [ $label != "null" ] || [ $workorder != "null" ] ; then
-                OUTPUT="$OUTPUT\nJira Id:\t"$DESCRIPTION_COLOR"$jiraId"$NC
+            jiraJson=$(curl -s -u $USER:$PASSWORD -X GET -H 'Content-Type: application/json' https://mirada.atlassian.net/rest/api/latest/issue/$jiraId)
+            label=$(jq -r ".fields.labels[0]" <<< "$jiraJson")
+            workorder=$(jq -r ".fields.customfield_11700" <<< "$jiraJson")
+            jiraType=$(jq -r ".fields.issuetype.name" <<< "$jiraJson")
+            
+            if [ "$jiraType" == "null" ]; then
+                continue
             fi
 
+            
+            if [ "$jiraType" == "Bug" ] || [ "$jiraType" == "Issue" ]; then
+                OUTPUT="$OUTPUT\nUnit4 Description:\t"$DESCRIPTION_COLOR"Bugfixing - iOS - $jiraId"$NC
+            elif [ "$jiraType" == "Feature" ] || [ "$jiraType" == "New Feature" ]; then
+                OUTPUT="$OUTPUT\nUnit4 Description:\t"$DESCRIPTION_COLOR"Task - iOS - $jiraId"$NC
+            else
+                OUTPUT="$OUTPUT\nUnit4 Description:\t"$DESCRIPTION_COLOR"$jiraType - iOS - $jiraId"$NC
+            fi
+            
             if [ $label != "null" ] ; then
-                OUTPUT="$OUTPUT\nLabel:\t\t"$DESCRIPTION_COLOR"$label"$NC
+                OUTPUT="$OUTPUT\nLabel:\t\t\t"$DESCRIPTION_COLOR"$label"$NC
             fi
 
-            if [ $workorder != "null" ] ; then
-                OUTPUT="$OUTPUT\nWorkorder\t"$DESCRIPTION_COLOR"$workorder\n"$NC
+            if [ $workorder != "null" ] && [ $workorder != "tbc" ]; then
+                OUTPUT="$OUTPUT\nWorkorder:\t\t"$DESCRIPTION_COLOR"$workorder\n"$NC
             fi
+
+            echo ""
+
         done
     fi
 }
@@ -57,7 +78,6 @@ echo "\n\n${WHITE}CALENDAR${NC}"
 startDate=$(date -j -v-"$DAYS"d +"%Y-%m-%d")
 endDate=$(date +"%Y-%m-%d")
 gcalcli search 'yeniel' $startDate $endDate
-echo "Label: 10111"
 
 # MERCURIAL
 
@@ -65,14 +85,13 @@ echo "\n\n${WHITE}MERCURAL${NC}"
 
 # Project paths
 
-IZZI_INSPIRE_PATH=~/workspace/ios/product-iris-mobile
-IZZI_APP_PATH=$IZZI_INSPIRE_PATH
-IZZI_COMPONENTS_PATH=$IZZI_INSPIRE_PATH/Movistar-sources/Mirada/libraries/library-iris-ios-components
-IZZI_INTERFACE_PATH=$IZZI_INSPIRE_PATH/Movistar-sources/Mirada/libraries/library-iris-ios-components/lib/library-iris-ios-interface
+IZZI_IRIS_PATH=~/workspace/ios/product-iris-mobile
+IZZI_APP_PATH=$IZZI_IRIS_PATH
+IZZI_INTERFACE_PATH=$IZZI_IRIS_PATH/Iris/libraries/library-iris-ios-interface
 
-KIDS_INSPIRE_PATH=~/workspace/ios/Kids
-KIDS_APP_PATH=$KIDS_INSPIRE_PATH
-KIDS_INTERFACE_PATH=$KIDS_INSPIRE_PATH/Kids/KidsLibrary
+KIDS_IRIS_PATH=~/workspace/ios/Kids
+KIDS_APP_PATH=$KIDS_IRIS_PATH
+KIDS_INTERFACE_PATH=$KIDS_IRIS_PATH/Kids/KidsLibrary
 
 for day in $(seq 0 "$DAYS"); do
 
@@ -86,7 +105,6 @@ for day in $(seq 0 "$DAYS"); do
     echo "\n\n${WHITE}Izzi${NC}"
 
     RepositoryLog $IZZI_APP_PATH APP
-    RepositoryLog $IZZI_COMPONENTS_PATH COMPONENTS
     RepositoryLog $IZZI_INTERFACE_PATH INTERFACE
 
     echo "$OUTPUT"
@@ -102,8 +120,5 @@ for day in $(seq 0 "$DAYS"); do
     echo "$OUTPUT"
     OUTPUT=""
 
-    if [[ -z $1 ]]; then
-        read -p "Siguiente..." next
-    fi
 done
 
