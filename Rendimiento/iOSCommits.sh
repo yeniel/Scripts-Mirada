@@ -2,8 +2,7 @@
 
 INSPIRE_PATH=~/workspace/ios/product-iris-mobile
 APP_PATH=$INSPIRE_PATH
-COMPONENTS_PATH=$INSPIRE_PATH/Movistar-sources/Mirada/libraries/library-iris-ios-components
-INTERFACE_PATH=$INSPIRE_PATH/Movistar-sources/Mirada/libraries/library-iris-ios-components/lib/library-iris-ios-interface
+INTERFACE_PATH=$INSPIRE_PATH/Iris/libraries/library-iris-ios-interface
 
 LOG_TEMPLATE='{date|isodate}\n'
 
@@ -47,26 +46,6 @@ elif [[ $appLog ]]; then
     		done <<< "$appLog"
 	done
 fi
-
-
-cd $COMPONENTS_PATH
-
-#componentsLog=$(hg log --user "yeniel.landestoy@mirada.tv" --template $LOG_TEMPLATE)
-componentsLog=$(hg log --template $LOG_TEMPLATE)
-
-if [[ $? != 0 ]]; then
-	echo "Components hg log failed"
-	exit
-elif [[ $componentsLog ]]; then
-	for commit in "$componentsLog"
-	do
-		while read -r commit; do
-			OUTPUT="$OUTPUT\n"
-			OUTPUT=$OUTPUT$(date -j -f "%Y-%m-%d %H:%M %z" "$commit" +"%H:%m")
-    		done <<< "$componentsLog"
-	done
-fi
-
 
 cd $INTERFACE_PATH
 

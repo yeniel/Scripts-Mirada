@@ -16,7 +16,10 @@ for key in "${keys[@]}"; do
     echo "$matches" | sed 's/\/Users\/yeniel.landestoy\/workspace\/ios\/product-iris-mobile\/Iris\/src\/View//g'
 
     matchesNumberOfLines=$(echo "$matches" | wc -l)
-    localizableMatchesNumberOfLines=$(echo "$matches" | grep -e "\.strings:$key" | wc -l)
+    localizableMatchesNumberOfLines=$(echo "$matches" | grep -e "\.strings:\"$key\"" | wc -l)
+
+    echo $matchesNumberOfLines
+    echo $localizableMatchesNumberOfLines
 
     if [[ $matchesNumberOfLines -eq $localizableMatchesNumberOfLines ]]; then
 		echo "$matches" | cut -d : -f 1 | while read -r file ; do

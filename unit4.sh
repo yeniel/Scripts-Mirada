@@ -1,6 +1,7 @@
 #!/bin/sh
 
 DESCRIPTION_COLOR="\033[0;31m"
+UNI4_DESCRIPTION_COLOR="\033[0;93m"
 DAY_COLOR="\033[0;34m"
 NC="\033[0m"
 WHITE="\033[1;37m"
@@ -24,6 +25,8 @@ RepositoryLog () {
         echo "hg log failed"
         exit
     elif [[ $log ]]; then
+        log=$(echo "$log" | sort -u)
+        
         OUTPUT="$OUTPUT\n\n$2\n"
         OUTPUT="$OUTPUT\n$log\n\n"
 
@@ -50,19 +53,19 @@ RepositoryLog () {
 
             
             if [ "$jiraType" == "Bug" ] || [ "$jiraType" == "Issue" ]; then
-                OUTPUT="$OUTPUT\nUnit4 Description:\t"$DESCRIPTION_COLOR"Bugfixing - iOS - $jiraId"$NC
-            elif [ "$jiraType" == "Feature" ] || [ "$jiraType" == "New Feature" ]; then
-                OUTPUT="$OUTPUT\nUnit4 Description:\t"$DESCRIPTION_COLOR"Task - iOS - $jiraId"$NC
+                OUTPUT="$OUTPUT\nUnit4 Description:\t"$UNI4_DESCRIPTION_COLOR"Bugfixing - iOS - $jiraId"$NC
+            elif [ "$jiraType" == "Feature" ] || [ "$jiraType" == "New Feature" ] || [ "$jiraType" == "Sub-task" ]; then
+                OUTPUT="$OUTPUT\nUnit4 Description:\t"$UNI4_DESCRIPTION_COLOR"Task - iOS - $jiraId"$NC
             else
-                OUTPUT="$OUTPUT\nUnit4 Description:\t"$DESCRIPTION_COLOR"$jiraType - iOS - $jiraId"$NC
+                OUTPUT="$OUTPUT\nUnit4 Description:\t"$UNI4_DESCRIPTION_COLOR"$jiraType - iOS - $jiraId"$NC
             fi
             
             if [ $label != "null" ] ; then
-                OUTPUT="$OUTPUT\nLabel:\t\t\t"$DESCRIPTION_COLOR"$label"$NC
+                OUTPUT="$OUTPUT\nLabel:\t\t\t"$UNI4_DESCRIPTION_COLOR"$label"$NC
             fi
 
             if [ $workorder != "null" ] && [ $workorder != "tbc" ]; then
-                OUTPUT="$OUTPUT\nWorkorder:\t\t"$DESCRIPTION_COLOR"$workorder\n"$NC
+                OUTPUT="$OUTPUT\nWorkorder:\t\t"$UNI4_DESCRIPTION_COLOR"$workorder\n"$NC
             fi
 
             OUTPUT="$OUTPUT\n"
@@ -129,4 +132,4 @@ echo "\n\n${WHITE}JIRA${NC}"
 startDate=$(date -j -v-"$DAYS"d +"%Y/%m/%d")
 endDate=$(date +"%Y/%m/%d")
 
-/Users/yeniel.landestoy/Google\ Drive/Scripts/TimesheetJiraQueryMacOS_v1_1 yeniel.landestoy@mirada.tv uzgqyhisedO8L1mLeH1F7493 -q "status changed by currentUser() after \"$startDate\" before \"$endDate\" ORDER BY updatedDate ASC
+/Users/yeniel.landestoy/Google\ Drive/Scripts/TimesheetJiraQueryMacOS_v1_1 yeniel.landestoy@mirada.tv uzgqyhisedO8L1mLeH1F7493 -q "status changed by currentUser() after \"$startDate\" before \"$endDate\" ORDER BY updatedDate ASC"

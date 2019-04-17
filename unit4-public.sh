@@ -65,7 +65,7 @@ RepositoryLog () {
                 OUTPUT="$OUTPUT\nWorkorder:\t\t"$DESCRIPTION_COLOR"$workorder\n"$NC
             fi
 
-            echo ""
+            OUTPUT="$OUTPUT\n"
 
         done
     fi

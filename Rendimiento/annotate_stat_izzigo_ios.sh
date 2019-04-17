@@ -1,15 +1,11 @@
 #!/usr/local/bin/bash
 
 declare -A users
-excludedFolders="-path ./lib"
-excludedFolders="$excludedFolders -o -path ./Movistar-sources/libraries/fb-connect-ios-sdk"
-excludedFolders="$excludedFolders -o -path ./Movistar-sources/libraries/OAuthConsumeriPhoneLib"
-excludedFolders="$excludedFolders -o -path ./Movistar-sources/libraries/SAOAuthTwitterEngine"
-excludedFolders="$excludedFolders -o -path ./Movistar-sources/libraries/UIAlertViewManager"
-excludedFolders="$excludedFolders -o -path ./Movistar-sources/Mirada/libraries/library-iris-ios-components/lib/library-iris-ios-interface/lib"
-excludedFolders="$excludedFolders -o -path ./Movistar-sources/Mirada/libraries/library-iris-ios-components/lib/library-iris-ios-interface/src/IrisInterface/libs"
-excludedFolders="$excludedFolders -o -path ./Movistar-sources/libraries/IrisPlayer/IrisPlayer/ThirdParty"
-excludedFolders="$excludedFolders -o -path ./Movistar-sources/Mirada/Movistar/src/Movistar/Third*"
+excludedFolders="-path ./Iris/libraries"
+excludedFolders="$excludedFolders -o -path ./Iris/libraries/library-iris-ios-interface/lib"
+excludedFolders="$excludedFolders -o -path ./Iris/libraries/library-iris-ios-interface/src/IrisInterface/libs"
+excludedFolders="$excludedFolders -o -path ./Iris/libraries/IrisPlayer/IrisPlayer/ThirdParty"
+excludedFolders="$excludedFolders -o -path ./Iris/src/View/Third*"
 
 files=$(find -E . -type d \( $excludedFolders \) -prune -o -iregex ".*\.(swift|m|h|xib|storyboard)")
 
